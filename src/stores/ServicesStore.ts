@@ -236,6 +236,18 @@ export default class ServicesStore extends TypedStore {
         this._shareSettingsWithServiceProcess();
       },
     );
+
+    // When the app window regains focus, immediately re-poll the active
+    // service so its unread badge refreshes right away instead of waiting for
+    // the throttled (backgrounded) poll interval to elapse.
+    reaction(
+      () => this.stores.app.isFocused,
+      isFocused => {
+        if (isFocused && this.active) {
+          this._initRecipePolling(this.active.id);
+        }
+      },
+    );
   }
 
   initialize() {
@@ -1440,7 +1452,14 @@ export default class ServicesStore extends TypedStore {
   _initRecipePolling(serviceId: string) {
     const service = this.one(serviceId);
 
-    const delay = ms('2s');
+    // Poll cadence: poll quickly while the app window is focused so unread
+    // badges stay responsive, but back off when the window is unfocused/in the
+    // background to reduce idle CPU/GPU usage (a major macOS power drain).
+    // Native HTML5/ServiceWorker notifications are event-driven and unaffected
+    // by this cadence; only recipes that scrape the DOM for unread counts in
+    // their `loop()` see slightly delayed badge updates while backgrounded.
+    const ACTIVE_DELAY = ms('2s');
+    const THROTTLED_DELAY = ms('10s');
 
     if (service) {
       if (service.timer !== null) {
@@ -1452,6 +1471,9 @@ export default class ServicesStore extends TypedStore {
 
         service.webview.send('poll');
 
+        const delay = this.stores.app.isFocused
+          ? ACTIVE_DELAY
+          : THROTTLED_DELAY;
         service.timer = setTimeout(loop, delay);
         service.lastPoll = Date.now();
       };

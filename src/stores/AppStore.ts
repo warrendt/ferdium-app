@@ -331,8 +331,12 @@ export default class AppStore extends TypedStore {
       ) {
         debug('Reloading services, user info and features');
 
-        setInterval(() => {
-          debug('Reload app interval is starting');
+        // Reload once after a short delay. Using a one-shot timeout (instead of
+        // an uncleared setInterval) prevents the app from reloading every 2s
+        // forever and stacking a new interval on every resume, which was a
+        // major source of CPU/GPU power drain on macOS after sleep/resume.
+        setTimeout(() => {
+          debug('Reload app after resume is starting');
           if (this.isOnline) {
             window.location.reload();
           }

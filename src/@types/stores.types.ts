@@ -101,7 +101,7 @@ export interface AppStore extends TypedStore {
   healthCheckRequest: () => void;
   isClearingAllCache: () => void;
   isAppMuted: boolean;
-  isFocused: () => void;
+  isFocused: boolean;
   isFullScreen: () => void;
   isOnline: boolean;
   isSystemDarkModeEnabled: () => void;
