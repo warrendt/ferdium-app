@@ -1,0 +1,61 @@
+# Builds the iPadOS (Strategy A) app shell. This lane validates that the native
+# project generates and compiles; it does not sign or publish.
+#
+# Renderer assets are produced with esbuild, then the Xcode project is generated
+# from `ipados/project.yml` via XcodeGen and built with `xcodebuild`.
+name: iPadOS build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ipados/**'
+      - 'src/**'
+      - '.github/workflows/ipados.yml'
+  pull_request:
+    paths:
+      - 'ipados/**'
+      - 'src/**'
+      - '.github/workflows/ipados.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.18.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build renderer bundle
+        run: ./ipados/scripts/bundle-renderer.sh
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ipados
+        run: xcodegen generate
+
+      - name: Build (simulator, unsigned)
+        working-directory: ipados
+        run: |
+          xcodebuild \
+            -project Ferdium-iPadOS.xcodeproj \
+            -scheme Ferdium-iPadOS \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build

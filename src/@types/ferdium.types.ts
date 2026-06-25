@@ -1,6 +1,20 @@
 declare global {
   interface Window {
     ferdium: any;
+    // Injected by the iPadOS native shell (see ipados/.../platform-bridge.js).
+    // Absent on Electron, where the platform bridge talks to `electron` instead.
+    ferdiumNative?: {
+      platform: 'ipados';
+      send: (command: string, payload?: Record<string, unknown>) => void;
+      request: (
+        command: string,
+        payload?: Record<string, unknown>,
+      ) => Promise<Record<string, unknown>>;
+      on: (
+        event: string,
+        handler: (payload: Record<string, unknown>) => void,
+      ) => () => void;
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Associated domains for Universal Links (replace with the real domain). -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:ferdium.org</string>
+	</array>
+	<!-- Background processing/fetch for notification refresh under iOS limits. -->
+	<key>com.apple.developer.usernotifications.communication</key>
+	<true/>
+</dict>
+</plist>

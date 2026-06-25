@@ -1,0 +1,45 @@
+# XcodeGen project spec for the Ferdium iPadOS app.
+# Generate the .xcodeproj with:  xcodegen generate  (from the `ipados/` directory)
+#
+# This keeps the Xcode project as declarative YAML rather than a binary pbxproj,
+# matching the repo's preference for reviewable, text-based configuration.
+name: Ferdium-iPadOS
+options:
+  bundleIdPrefix: org.ferdium
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    MARKETING_VERSION: "7.1.3"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.9"
+    TARGETED_DEVICE_FAMILY: "2" # iPad only
+    DEVELOPMENT_TEAM: "" # set your Apple Developer team id
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  Ferdium-iPadOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: Ferdium-iPadOS
+        excludes:
+          - "Resources/Info.plist"
+    resources:
+      # The renderer bundle is produced by `pnpm build` (esbuild) and copied here
+      # by `ipados/scripts/bundle-renderer.sh` before building.
+      - path: Ferdium-iPadOS/Renderer
+        optional: true
+        type: folder
+      - path: Ferdium-iPadOS/Resources/bridge
+        type: folder
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.ferdium.ferdium-app
+        INFOPLIST_FILE: Ferdium-iPadOS/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Ferdium-iPadOS/Resources/Ferdium.entitlements
+        ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+    info:
+      path: Ferdium-iPadOS/Resources/Info.plist

@@ -7,6 +7,14 @@ export const isWindows = process.platform === 'win32';
 export const isLinux = process.platform === 'linux';
 export const isWinPortable = process.env.PORTABLE_EXECUTABLE_FILE != null;
 
+// True when the renderer is hosted by the native iPadOS WKWebView shell
+// (see ipados/) rather than Electron. The native shim exposes
+// `window.ferdiumNative`, which Electron never does.
+export const isWebKitHost =
+  typeof window !== 'undefined' && window.ferdiumNative != null;
+export const isIpad =
+  isWebKitHost && window.ferdiumNative?.platform === 'ipados';
+
 export const isWayland = isLinux && process.env.XDG_SESSION_TYPE === 'wayland';
 export const isSnap = isLinux && process.env.SNAP != null;
 
